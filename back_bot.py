@@ -15,12 +15,22 @@ async def nil_corout():
 async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
                                            staytime_seconds = 2,\
                                            failure_coroutine = nil_corout):
+    """
+    Plays a .opus audio file through the bot.
+    
+    The bot will join the channel of the Member associated with the message if
+    possible. Then, will play the audio file, and leave after staytime_seconds.
+    
+    If there is a failure for whatever reason, the failure_coroutine will run
+    with no arguements. Most errors will be raised afterward.
+    
+    """
     
     if(opus.is_loaded() and isinstance(message.author, discord.Member)\
        and message.author.voice.voice_channel != None):
         try:
             voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
-        except:
+        except discord.errors.ClientException:
             voice_client = back_bot.voice_client_in(message.author.server)
             await voice_client.move_to(message.author.voice.voice_channel)
         
