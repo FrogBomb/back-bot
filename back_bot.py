@@ -49,7 +49,7 @@ async def on_read():
 @back_bot.event
 async def on_message(message):
         if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)):
-            print("back found!")
+            print("back found! " + message.author.id + " is back at " + time.asctime())
             
             async def say_back_message():
                 await back_bot.send_message(message.channel, "Did somebody say back?")
