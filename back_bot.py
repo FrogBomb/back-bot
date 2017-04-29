@@ -28,12 +28,15 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
     
     if(opus.is_loaded() and isinstance(message.author, discord.Member)\
        and message.author.voice.voice_channel != None):
-        try:
-            voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
-        except discord.errors.ClientException:
+        
+        #Move to the correct voice channel
+        if(back_bot.is_voice_connected(message.author.server)):
             voice_client = back_bot.voice_client_in(message.author.server)
             await voice_client.move_to(message.author.voice.voice_channel)
+        else:
+            voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
         
+        #Play the audio, then disconnect
         try:
             def disconnect_from_vc(*args):
                 voice_client.disconnet()
