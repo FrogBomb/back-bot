@@ -2,12 +2,18 @@ import discord
 from discord.ext.commands import Bot
 import discord.opus as opus
 import time
+import random
+
+back_file_list = ["Hello_Back.m4a", "did_somebody_say_back.opus", "drew_back_01.ogg"]
 
 with open("super_secret_key.txt") as f:
     key = f.readlines()[0].rstrip()
 
 
 back_bot = Bot("~")
+
+def pick_random_from_list(inList):
+    return inList[random.randint(0, len(inList) - 1)]
 
 async def nil_corout():
     return
@@ -61,13 +67,14 @@ async def on_read():
     
 @back_bot.event
 async def on_message(message):
+        global FILE_LIST
         if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)):
             print("back found! " + message.author.id + " is back at " + time.asctime())
             
             async def say_back_message():
                 await back_bot.send_message(message.channel, "Did somebody say back?")
                 
-            await play_opus_audio_to_channel_then_leave(message, "did_somebody_say_back.opus",\
+            await play_opus_audio_to_channel_then_leave(message, pick_random_from_list(back_file_list),\
                                                    failure_coroutine = say_back_message)
 
         await back_bot.process_commands(message)
