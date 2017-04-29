@@ -4,12 +4,25 @@
 ## Dependencies
 * Python 3.4.2+
 * discord.py
+* PyNaCl
+* ffmpeg
 
 #### Install discord.py
 
 ```shell_session
-  $ python3 -m pip install -U discord.py
+  $ pip install discord
 ```
+
+#### Install pynacl
+
+```shell_session
+  $ pip install pynacl
+```
+
+#### Install ffmpeg
+
+    Good luck!
+    Make sure the path environment variable points to the executable folder!
 
 ## Run
 
