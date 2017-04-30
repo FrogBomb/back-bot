@@ -4,7 +4,9 @@ import discord.opus as opus
 import time
 import random
 
-back_file_list = ["Hello_Back.m4a", "did_somebody_say_back.opus", "drew_back_01.ogg"]
+with open("back_files.txt") as bf:
+    back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
+#    print(back_file_list)
 
 with open("super_secret_key.txt") as f:
     key = f.readlines()[0].rstrip()
@@ -69,12 +71,14 @@ async def on_read():
 async def on_message(message):
         global FILE_LIST
         if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)):
-            print("back found! " + message.author.id + " is back at " + time.asctime())
+            print("back found! " + message.author.name + " is back at " + time.asctime())
             
             async def say_back_message():
                 await back_bot.send_message(message.channel, "Did somebody say back?")
-                
-            await play_opus_audio_to_channel_then_leave(message, pick_random_from_list(back_file_list),\
+            
+            filename, seconds_str = pick_random_from_list(back_file_list)
+            await play_opus_audio_to_channel_then_leave(message, filename,\
+                                                        staytime_seconds = int(seconds_str),\
                                                    failure_coroutine = say_back_message)
 
         await back_bot.process_commands(message)
