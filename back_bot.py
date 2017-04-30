@@ -41,26 +41,32 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         #Move to the correct voice channel
         if(back_bot.is_voice_connected(message.author.server)):
             voice_client = back_bot.voice_client_in(message.author.server)
-            await voice_client.move_to(message.author.voice.voice_channel)
-        else:
-            try:
-#                voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
-                voice_client = await asyncio.wait_for(asyncio.ensure_future(back_bot.join_voice_channel(message.author.voice.voice_channel)), 1.0)
-            except:
-                await failure_coroutine()
-                return #EXIT
+            await voice_client.disconnect()
+            
+        try:
+#           voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
+            voice_client = await asyncio.wait_for(asyncio.ensure_future(back_bot.join_voice_channel(message.author.voice.voice_channel)), 1.0)
+        except:
+            print("Hang back! No audio play!")
+            await failure_coroutine()
+            return #EXIT
         
         #Play the audio, then disconnect
         try:
-            async def disconnect_from_vc(*args):
-                await voice_client.disconnet()
+            def disconnect_from_vc(*args):
+                print("after called")
+                fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
+                try:
+                    fut.result()
+                except:
+                    pass
                 
             player = voice_client.create_ffmpeg_player(opus_filename, after = disconnect_from_vc)
             
             player.start()
             
-            time.sleep(staytime_seconds)
-            await voice_client.disconnect()
+#            time.sleep(staytime_seconds)
+#            await voice_client.disconnect()
             
         except Exception as e:
             await voice_client.disconnect()
