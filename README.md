@@ -29,3 +29,16 @@
 ```shell_session
   $ python3 back_bot.py
 ```
+
+## Format for back_files.txt
+Each line in back_files.txt has two fields separated by a space:
+```
+<filename1> <seconds1>
+<filename2> <seconds2>
+<filename3> <seconds3>
+...
+```
+
+The file will be located from the base directory.
+
+
