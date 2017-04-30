@@ -4,10 +4,14 @@ import discord.opus as opus
 import time
 import random
 import asyncio
+from os import listdir
+from os.path import relpath, isfile, join
 
-with open("back_files.txt") as bf:
-    back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
-#    print(back_file_list)
+
+back_file_dir = relpath("back_files")
+back_file_list = [join(back_file_dir, f) for f in listdir(back_file_dir) if isfile(join(back_file_dir, f))]
+#back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
+
 
 with open("super_secret_key.txt") as f:
     key = f.readlines()[0].rstrip()
@@ -22,7 +26,7 @@ async def nil_corout():
     return
 
 async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
-                                           staytime_seconds = 2,\
+#                                           staytime_seconds = 2,\
                                            failure_coroutine = nil_corout):
     """
     Plays a .opus audio file through the bot.
@@ -54,7 +58,7 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         #Play the audio, then disconnect
         try:
             def disconnect_from_vc(*args):
-                print("after called")
+#                print("after called")
                 fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
                 try:
                     fut.result()
@@ -96,9 +100,8 @@ async def on_message(message):
         async def say_back_message():
             await back_bot.send_message(message.channel, "Did somebody say back?")
         
-        filename, seconds_str = pick_random_from_list(back_file_list)
+        filename = pick_random_from_list(back_file_list)
         await play_opus_audio_to_channel_then_leave(message, filename,\
-                                                    staytime_seconds = int(seconds_str),\
                                                failure_coroutine = say_back_message)
 
     await back_bot.process_commands(message)
