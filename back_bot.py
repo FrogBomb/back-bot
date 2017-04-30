@@ -9,7 +9,7 @@ from os.path import relpath, isfile, join
 
 
 back_file_dir = relpath("back_files")
-back_file_list = [join(back_file_dir, f) for f in listdir(back_file_dir) if isfile(join(back_file_dir, f))]
+
 #back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
 
 
@@ -49,12 +49,14 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
             
         try:
 #           voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
-            voice_client = await asyncio.wait_for(asyncio.ensure_future(back_bot.join_voice_channel(message.author.voice.voice_channel)), 1.0)
+            async def join_the_channel():
+                return await asyncio.wait_for(asyncio.ensure_future(back_bot.join_voice_channel(message.author.voice.voice_channel)), 1.0, loop=back_bot.loop)
+                
+            voice_client = await join_the_channel()
         except Exception as e:
             print("Hang back! No audio play!")
-            print(e)
             await failure_coroutine()
-            return #EXIT
+            raise e
         
         #Play the audio, then disconnect
         try:
@@ -99,6 +101,8 @@ async def on_message(message):
            and back_bot.voice_client_in(message.server) == None):
             print("back found! " + message.author.name + " is back at " + time.asctime())
             
+            back_file_list = [join(back_file_dir, f) for f in listdir(back_file_dir) if isfile(join(back_file_dir, f))]
+            
             async def say_back_message():
                 await back_bot.send_message(message.channel, "Did somebody say back?")
             
@@ -109,6 +113,7 @@ async def on_message(message):
         await back_bot.process_commands(message)
     finally:
         processing_message = False
+    processing_message = False
 #
 @back_bot.command()
 async def im_back(*args):
