@@ -70,8 +70,8 @@ async def on_read():
     
 @back_bot.event
 async def on_message(message):
-        global FILE_LIST
-        if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)):
+        if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)\
+           and back_bot.voice_client_in(message.server) == None):
             print("back found! " + message.author.name + " is back at " + time.asctime())
             
             async def say_back_message():
