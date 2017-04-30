@@ -52,8 +52,8 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         
         #Play the audio, then disconnect
         try:
-            def disconnect_from_vc(*args):
-                voice_client.disconnet()
+            async def disconnect_from_vc(*args):
+                await voice_client.disconnet()
                 
             player = voice_client.create_ffmpeg_player(opus_filename, after = disconnect_from_vc)
             
