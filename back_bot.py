@@ -50,8 +50,9 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         try:
 #           voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
             voice_client = await asyncio.wait_for(asyncio.ensure_future(back_bot.join_voice_channel(message.author.voice.voice_channel)), 1.0)
-        except:
+        except Exception as e:
             print("Hang back! No audio play!")
+            print(e)
             await failure_coroutine()
             return #EXIT
         
@@ -93,19 +94,21 @@ async def on_message(message):
         return
     else:
         processing_message = True
-    if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)\
-       and back_bot.voice_client_in(message.server) == None):
-        print("back found! " + message.author.name + " is back at " + time.asctime())
-        
-        async def say_back_message():
-            await back_bot.send_message(message.channel, "Did somebody say back?")
-        
-        filename = pick_random_from_list(back_file_list)
-        await play_opus_audio_to_channel_then_leave(message, filename,\
-                                               failure_coroutine = say_back_message)
-
-    await back_bot.process_commands(message)
-    processing_message = False
+    try:
+        if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)\
+           and back_bot.voice_client_in(message.server) == None):
+            print("back found! " + message.author.name + " is back at " + time.asctime())
+            
+            async def say_back_message():
+                await back_bot.send_message(message.channel, "Did somebody say back?")
+            
+            filename = pick_random_from_list(back_file_list)
+            await play_opus_audio_to_channel_then_leave(message, filename,\
+                                                   failure_coroutine = say_back_message)
+    
+        await back_bot.process_commands(message)
+    finally:
+        processing_message = False
 #
 @back_bot.command()
 async def im_back(*args):
