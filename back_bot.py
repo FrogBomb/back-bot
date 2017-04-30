@@ -36,7 +36,7 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
     
     if(opus.is_loaded() and isinstance(message.author, discord.Member)\
        and message.author.voice.voice_channel != None):
-        
+        print(opus_filename)
         #Move to the correct voice channel
         if(back_bot.is_voice_connected(message.author.server)):
             voice_client = back_bot.voice_client_in(message.author.server)
@@ -52,6 +52,7 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
             player = voice_client.create_ffmpeg_player(opus_filename, after = disconnect_from_vc)
             
             player.start()
+            
             time.sleep(staytime_seconds)
             await voice_client.disconnect()
             
