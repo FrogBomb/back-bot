@@ -88,15 +88,10 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 async def on_read():
     print("Back into action")
 
-processing_message = False
+
 @back_bot.event
 async def on_message(message):
-    global processing_message
-    if(processing_message):
-        return
-    else:
-        processing_message = True
-    try:
+    async def process_message():
         if(("back" in message.content.lower()) and (message.author.id != back_bot.user.id)\
            and back_bot.voice_client_in(message.server) == None):
             print("back found! " + message.author.name + " is back at " + time.asctime())
@@ -111,10 +106,12 @@ async def on_message(message):
                                                    failure_coroutine = say_back_message)
     
         await back_bot.process_commands(message)
-    finally:
-        processing_message = False
-    processing_message = False
-#
+        
+    
+    asyncio.run_coroutine_threadsafe(process_message(), loop = back_bot.loop)
+
+
+
 @back_bot.command()
 async def im_back(*args):
     return await back_bot.say("Hi Back")
