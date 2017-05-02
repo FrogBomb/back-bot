@@ -9,16 +9,17 @@ from os.path import relpath, isfile, join
 
 
 back_file_dir = relpath("back_files")
-rarities = [("Rare", 1),
-            ("Uncommon", 9),
-            ("Common", 40)]
+
+#Dictionary of rarities with their relative, integer weights.
+#Rarest is 1.
+rarities = {"Rare": 1,
+            "Uncommon": 9,
+            "Common": 40}
 
 back_file_dict = {r: [join(back_file_dir, r, f) for f in \
                       listdir(join(back_file_dir, r)) if\
                       isfile(join(back_file_dir, r, f))]\
-                            for (r, _) in rarities}
-#back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
-
+                            for r in rarities}
 
 with open("super_secret_key.txt") as f:
     key = f.readlines()[0].rstrip()
@@ -27,11 +28,11 @@ with open("super_secret_key.txt") as f:
 back_bot = Bot("~")
 
 def pick_random_file():
-    total = sum(f for r, f in rarities)
+    total = sum(f for f in rarities.values())
     roll = random.randint(1, total)
     acc = 0
-    for r, f in rarities:
-        acc+=f
+    for r in rarities:
+        acc+=rarities[r]
         if roll <= acc:
             return pick_random_from_list(back_file_dict[r])
             
