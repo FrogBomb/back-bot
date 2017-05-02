@@ -13,7 +13,10 @@ rarities = [("Rare", 1),
             ("Uncommon", 20),
             ("Common", 30)]
 
-back_file_dict = {r: [join(back_file_dir, r, f) for f in listdir(back_file_dir) if isfile(join(back_file_dir, r, f))] for (r, _) in rarities}
+back_file_dict = {r: [join(back_file_dir, r, f) for f in \
+                      listdir(join(back_file_dir, r)) if\
+                      isfile(join(back_file_dir, r, f))]\
+                            for (r, _) in rarities}
 #back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
 
 
