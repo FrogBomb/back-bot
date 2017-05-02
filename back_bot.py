@@ -9,7 +9,11 @@ from os.path import relpath, isfile, join
 
 
 back_file_dir = relpath("back_files")
-back_file_list = [join(back_file_dir, f) for f in listdir(back_file_dir) if isfile(join(back_file_dir, f))]
+rarities = [("Rare", 1),
+            ("Uncommon", 20),
+            ("Common", 30)]
+
+back_file_dict = {r: [join(back_file_dir, r, f) for f in listdir(back_file_dir) if isfile(join(back_file_dir, r, f))] for (r, _) in rarities}
 #back_file_list = [fn.rstrip().split(" ") for fn in bf.readlines()]
 
 
@@ -18,6 +22,16 @@ with open("super_secret_key.txt") as f:
 
 
 back_bot = Bot("~")
+
+def pick_random_file():
+    total = sum(f for r, f in rarities)
+    roll = random.randint(1, total)
+    acc = 0
+    for r, f in rarities:
+        acc+=f
+        if roll <= acc:
+            return pick_random_from_list(back_file_dict[r])
+            
 
 def pick_random_from_list(inList):
     return inList[random.randint(0, len(inList) - 1)]
@@ -104,7 +118,7 @@ async def on_message(message):
         async def say_back_message():
             await back_bot.send_message(message.channel, "Did somebody say back?")
         
-        filename = pick_random_from_list(back_file_list)
+        filename = pick_random_file()
         await play_opus_audio_to_channel_then_leave(message, filename,\
                                                failure_coroutine = say_back_message)
 
