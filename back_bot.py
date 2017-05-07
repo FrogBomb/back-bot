@@ -110,7 +110,8 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
             await failure_coroutine()
             
         base, rarity, clip  = opus_filename.split("\\")
-        em = discord.Embed(title=":back:", description= rarity + " back: " + clip, colour=rarity_colors[rarity])
+        em = discord.Embed(title= rarity + " :back:", description = clip,\
+                           colour=rarity_colors[rarity])
         em.set_author(name='Back Bot', icon_url=back_bot.user.avatar_url)
         await back_bot.send_message(message.channel, embed=em)
             
