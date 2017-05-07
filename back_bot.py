@@ -16,6 +16,12 @@ rarities = {"Rare": 1,
             "Uncommon": 9,
             "Common": 40}
 
+rarity_colors = { "Rare": discord.Color.purple(),
+                  "Uncommon": discord.Color.blue(),
+                  "Common": discord.Color.green()}
+
+rarity_colors.setdefault(discord.Color.default())
+
 back_file_dict = {r: [join(back_file_dir, r, f) for f in \
                       listdir(join(back_file_dir, r)) if\
                       isfile(join(back_file_dir, r, f))]\
@@ -75,17 +81,20 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
             voice_client = await join_the_channel()
                     #Play the audio, then disconnect
             try:
+                
                 def disconnect_from_vc(*args):
     #                print("after called")
-                    fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
+                    dc_fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
                     try:
-                        fut.result()
+                        dc_fut.result()
                     except:
                         pass
                     
                 player = voice_client.create_ffmpeg_player(opus_filename, after = disconnect_from_vc)
                 
                 player.start()
+                
+                
                 
     #            time.sleep(staytime_seconds)
     #            await voice_client.disconnect()
@@ -99,6 +108,11 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         except Exception as e:
             print("Hang back! No audio play!")
             await failure_coroutine()
+            
+        base, rarity, clip  = opus_filename.split("\\")
+        em = discord.Embed(title=":back:", description= rarity + " back: " + clip, colour=rarity_colors[rarity])
+        em.set_author(name='Back Bot', icon_url=back_bot.user.avatar_url)
+        await back_bot.send_message(message.channel, embed=em)
             
         
 
