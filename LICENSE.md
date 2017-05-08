@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2017 Parker Illig
+Copyright (c) 2017 Parker Illig, Tom Blanchet
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
