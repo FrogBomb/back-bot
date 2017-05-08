@@ -98,7 +98,7 @@ class LootTracker(object):
         key_list.sort(key=self.rarities_to_points.__getitem__)
         for r in key_list:
             field = self._rarity_field(r, lootBag.get_loot_dict()[r])
-            em.add_field(**field)
+            em.add_field(**field, inline=False)
             
         em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
         return em
@@ -116,7 +116,7 @@ class LootTracker(object):
     def save(self): #TODO
         pass
 
-##Python dependancy injector: Not hard!
+##Python dependency injector: Not hard!
 BACK_BOT.lootTracker = LootTracker()
     
 ##FUNCTIONS  
