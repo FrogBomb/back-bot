@@ -7,6 +7,7 @@ import asyncio
 from collections import defaultdict
 from os import listdir
 from os.path import relpath, isfile, join
+import pickle
 
 ##GLOBALS
 
@@ -31,33 +32,53 @@ BACK_FILE_DICT = {r: [join(BACK_FILE_DIR, r, f) for f in \
 
 BACK_BOT = Bot("~")
 
-##CLASSES AND CLASS HELPERS
-def LootBag_factory(rarities):
-    class LootBag(object):
-        def __init__(self):
-            
-            #Loot slots will be dictionaries to the counts of loot.
-            #Defaults to 0
-            self.loot_slots = {r: defaultdict(int) for r in rarities}
-            
-        def add_loot(self, rarity, loot_name):
-            try:
-                self.loot_slots[rarity][loot_name] += 1
-            except KeyError:
-                self.loot_slots[rarity] = defaultdict(int)
-                self.loot_slots[rarity][loot_name] += 1
-            
-        def get_loot_dict(self):
-            return self.loot_slots
+##CLASSES
+class LootBag(object):
+    def __init__(self, rarities = RARITIES):
         
-    return LootBag
+        #Loot slots will be dictionaries to the counts of loot.
+        #Defaults to 0
+        self.loot_slots = {r: defaultdict(int) for r in rarities}
+        
+    def add_loot(self, rarity, loot_name):
+        try:
+            self.loot_slots[rarity][loot_name] += 1
+        except KeyError:
+            self.loot_slots[rarity] = defaultdict(int)
+            self.loot_slots[rarity][loot_name] += 1
+        
+    def get_loot_dict(self):
+        return self.loot_slots
         
 class LootTracker(object):
-    def __init__(self, saveLocation = None, loot_mult = 100.0,\
+    def __new__(cls, *args, **kwargs):
+        #Load the LootTracker
+        
+        if(len(args) > 0):
+            save_location = args[0]
+        else:
+            try:
+                save_location = kwargs['save_location']
+            except KeyError:
+                return super(LootTracker, cls).__new__(cls)
+        
+        if(isfile(save_location)):
+            with open(save_location, 'rb') as f:
+                loaded_self = pickle.load(f)
+            assert isinstance(loaded_self, LootTracker)
+            print("Load success!")
+            return loaded_self
+        else:
+            return super(LootTracker, cls).__new__(cls)
+        
+    def __init__(self, save_location = None, loot_mult = 100.0,\
                  rarities = RARITIES, rarity_colors = RARITY_COLORS):
         
+        if(isfile(save_location)):
+            ## Means we loaded the LootTracker already!
+            return
         #Place to store data
-        self.saveLocation = saveLocation 
+        self.save_location = save_location 
         
         #Dict to find point values
         numerator = sum(RARITIES.values())*loot_mult
@@ -67,18 +88,13 @@ class LootTracker(object):
         #Point Tracker for players
         self.players_to_points = defaultdict(int)
         
-        #Make the LootBag class
-        LootBag = LootBag_factory(rarities)
-        
         #Player Loot tracker
         self.players_to_loot = defaultdict(LootBag)
-        
-        #Colors of rarities
-        self.rarity_colors = rarity_colors
     
     def add_loot(self, player, rarity, loot_name):
         self.players_to_points[player] += self.rarities_to_points[rarity]
         self.players_to_loot[player].add_loot(rarity, loot_name)
+        self.save()
         
     __call__ = add_loot #alias
         
@@ -113,11 +129,14 @@ class LootTracker(object):
                                    " points back)",\
                 "value": value}
     
-    def save(self): #TODO
-        pass
-
+    def save(self):
+        if self.save_location != None:
+            with open('loot.pickle', 'wb') as f:
+                pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+                
+            
 ##Python dependency injector: Not hard!
-BACK_BOT.lootTracker = LootTracker()
+BACK_BOT.lootTracker = LootTracker("loot.pickle")
     
 ##FUNCTIONS  
 
@@ -233,7 +252,6 @@ async def on_message(message):
                                                failure_coroutine = say_back_message)
 
     await BACK_BOT.process_commands(message)
-
 
 
 @BACK_BOT.command()
