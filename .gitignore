@@ -1,2 +1,4 @@
 *.sw*
+*.pickle
+*.pyc
 super_secret_key.txt
