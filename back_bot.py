@@ -121,12 +121,12 @@ BACK_BOT.lootTracker = LootTracker()
     
 ##FUNCTIONS  
 
-def pick_random_file(file_dict = BACK_FILE_DICT):
-    total = sum(f for f in RARITIES.values())
+def pick_random_file(file_dict = BACK_FILE_DICT, rarities = RARITIES):
+    total = sum(f for f in rarities.values())
     roll = random.randint(1, total)
     acc = 0
-    for r in RARITIES:
-        acc+=RARITIES[r]
+    for r in rarities:
+        acc+=rarities[r]
         if roll <= acc:
             return pick_random_from_list(file_dict[r])
             
@@ -138,7 +138,9 @@ async def nil_corout():
     return
 
 async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
-                                           failure_coroutine = nil_corout):
+                                           failure_coroutine = nil_corout,
+                                           back_bot = BACK_BOT,
+                                           rarity_colors = RARITY_COLORS):
     """
     Plays a .opus audio file through the bot.
     
@@ -154,14 +156,14 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
        and message.author.voice.voice_channel != None):
         print(opus_filename)
         #Move to the correct voice channel
-        if(BACK_BOT.is_voice_connected(message.author.server)):
-            voice_client = BACK_BOT.voice_client_in(message.author.server)
+        if(back_bot.is_voice_connected(message.author.server)):
+            voice_client = back_bot.voice_client_in(message.author.server)
             await voice_client.disconnect()
             
         try:
 #           voice_client = await BACK_BOT.join_voice_channel(message.author.voice.voice_channel)
             async def join_the_channel():
-                return await asyncio.shield(BACK_BOT.join_voice_channel(\
+                return await asyncio.shield(back_bot.join_voice_channel(\
                                 message.author.voice.voice_channel))
                 
             voice_client = await join_the_channel()
@@ -196,7 +198,7 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
             await failure_coroutine()
             
         base, rarity, clip  = opus_filename.split("\\")
-        color = RARITY_COLORS[rarity]
+        color = rarity_colors[rarity]
         em = discord.Embed(title= rarity + " :back:",\
                            description = clip,\
                            color=color)
