@@ -15,11 +15,13 @@ BACK_FILE_DIR = relpath("back_files")
 
 #Dictionary of rarities with their relative, integer weights.
 #Rarest is 1.
-RARITIES = {"Rare": 1,
-            "Uncommon": 9,
-            "Common": 40}
+RARITIES = {"Rollback": 1,
+            "Rare": 10,
+            "Uncommon": 90,
+            "Common": 400}
 
-RARITY_COLORS = { "Rare": discord.Color.purple(),
+RARITY_COLORS = { "Rollback": discord.Color(0xffffff), #black
+                  "Rare": discord.Color.purple(),
                   "Uncommon": discord.Color.blue(),
                   "Common": discord.Color.green()}
 
@@ -34,11 +36,13 @@ BACK_BOT = Bot("~")
 
 ##CLASSES
 class LootBag(object):
-    def __init__(self, rarities = RARITIES):
+    loot_rarities = [r for r in RARITIES]
+    def __init__(self):
         
+        self._rarities = LootBag.loot_rarities
         #Loot slots will be dictionaries to the counts of loot.
         #Defaults to 0
-        self.loot_slots = {r: defaultdict(int) for r in rarities}
+        self.loot_slots = {r: defaultdict(int) for r in self._rarities}
         
     def add_loot(self, rarity, loot_name):
         try:
@@ -49,6 +53,7 @@ class LootBag(object):
         
     def get_loot_dict(self):
         return self.loot_slots
+    
         
 class LootTracker(object):
     def __new__(cls, *args, **kwargs):
@@ -72,28 +77,45 @@ class LootTracker(object):
             return super(LootTracker, cls).__new__(cls)
         
     def __init__(self, save_location = None, loot_mult = 100.0,\
-                 rarities = RARITIES, rarity_colors = RARITY_COLORS):
+                 rarities = RARITIES, rarity_colors = RARITY_COLORS,
+                 rollback_rarities = ["Rollback"]):
+        
+        #Set the loot rarities to see!
+        LootBag.loot_rarities = [r for r in LootBag.loot_rarities\
+                     if not (r in rollback_rarities)]
+        
+        self.rollbacks = rollback_rarities
+        
+        #Dict to find point values
+        numerator = sum(rarities[k] for k in rarities\
+                        if not (k in rollback_rarities))*loot_mult
+                        
+        self.rarities_to_points = {k: int(numerator/rarities[k])\
+                                   for k in rarities\
+                                   if not (k in rollback_rarities)}
+        
+
         
         if(isfile(save_location)):
             ## Means we loaded the LootTracker already!
             return
-        #Place to store data
-        self.save_location = save_location 
         
-        #Dict to find point values
-        numerator = sum(RARITIES.values())*loot_mult
-        self.rarities_to_points = {k: int(numerator/rarities[k])\
-                                   for k in rarities}
-        
-        #Point Tracker for players
-        self.players_to_points = defaultdict(int)
-        
-        #Player Loot tracker
-        self.players_to_loot = defaultdict(LootBag)
+        else:
+            #Point Tracker for players
+            self.players_to_points = defaultdict(int)
+            
+            #Place to store data
+            self.save_location = save_location 
+            
+            #Player Loot tracker
+            self.players_to_loot = defaultdict(LootBag)
     
     def add_loot(self, player, rarity, loot_name):
-        self.players_to_points[player] += self.rarities_to_points[rarity]
-        self.players_to_loot[player].add_loot(rarity, loot_name)
+        if rarity in self.rollbacks:
+            self.rollback(player)
+        else:
+            self.players_to_points[player] += self.rarities_to_points[rarity]
+            self.players_to_loot[player].add_loot(rarity, loot_name)
         self.save()
         
     __call__ = add_loot #alias
@@ -114,8 +136,8 @@ class LootTracker(object):
         key_list.sort(key=self.rarities_to_points.__getitem__)
         for r in key_list:
             field = self._rarity_field(r, lootBag.get_loot_dict()[r])
-            em.add_field(**field, inline=False)
-            
+            em.add_field(**field, inline=True)
+        em.add_field(**self._rollback_warn_field(), inline = False)
         em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
         return em
     
@@ -125,21 +147,25 @@ class LootTracker(object):
         if value == '':
             value = 'None Yet!'
             
-        return {"name": rarity +": " + str(total) + "\n(" + str(self.rarities_to_points[rarity]) +\
+        return {"name": rarity +": " + str(total) + " (" + str(self.rarities_to_points[rarity]) +\
                                    " points back)",\
                 "value": value}
+    def _rollback_warn_field(self):
+        return {"name": "BEWARE OF THE ROLLBACK!",\
+                "value": "IT WILL TAKE BACK YOUR LOOT!"}
     
     def save(self):
         if self.save_location != None:
-            with open('loot.pickle', 'wb') as f:
+            with open(self.save_location, 'wb') as f:
                 pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
                 
+    def rollback(self, player):
+        del self.players_to_points[player]
+        del self.players_to_loot[player]
             
-##Python dependency injector: Not hard!
-BACK_BOT.lootTracker = LootTracker("loot.pickle")
+
     
 ##FUNCTIONS  
-
 def pick_random_file(file_dict = BACK_FILE_DICT, rarities = RARITIES):
     total = sum(f for f in rarities.values())
     roll = random.randint(1, total)
@@ -274,6 +300,8 @@ async def loot(context):
                                        embed=em)
 
 if __name__ == "__main__":
+    ##Python dependency injector: Not hard!
+    BACK_BOT.lootTracker = LootTracker("loot.pickle")
     with open("super_secret_key.txt") as f:
         key = f.readlines()[0].rstrip()
     BACK_BOT.run(key)
