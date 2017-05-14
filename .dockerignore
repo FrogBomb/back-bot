@@ -1,0 +1,4 @@
+*.sw*
+*.pyc
+*.yml
+super_secret_key.txt
