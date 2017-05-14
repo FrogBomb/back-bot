@@ -2,7 +2,10 @@
 ### A bot for the best joke of all time
 
 ## THIS BOT CAN BE RUN THROUGH DOCKER OR LOCALLY!
-###If Docker is setup and the daemon is running, simply run
+If Docker is setup and the daemon is running, simply change the
+`docker-compose.yml.example` file to contain you bot API token and rename
+the file to `docker-compose.yml`. Then, just run:
+
 ```shell_session
   $ docker-compose up
 ```
