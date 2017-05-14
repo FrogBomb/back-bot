@@ -20,7 +20,7 @@ RARITIES = {"Rollback": 1,
             "Uncommon": 90,
             "Common": 400}
 
-RARITY_COLORS = { "Rollback": discord.Color(0xffffff), #black
+RARITY_COLORS = { "Rollback": discord.Color(0x000000), #black
                   "Rare": discord.Color.purple(),
                   "Uncommon": discord.Color.blue(),
                   "Common": discord.Color.green()}
