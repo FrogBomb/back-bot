@@ -1,6 +1,14 @@
 # Back Bot
 ### A bot for the best joke of all time
 
+## THIS BOT CAN BE RUN THROUGH DOCKER OR LOCALLY!
+###If Docker is setup and the daemon is running, simply run
+```shell_session
+  $ docker-compose up
+```
+
+##Without Docker...
+
 ## Dependencies
 * Python 3.4.2+
 * discord.py
@@ -32,5 +40,3 @@
 
 
 The file will be located from the base directory.
-
-

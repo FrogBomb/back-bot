@@ -3,9 +3,11 @@ RUN apk add --no-cache build-base libffi-dev opus ffmpeg
 RUN python3 -m pip install -U discord.py youtube-dl PyNaCl
 ARG TOKEN
 RUN mkdir /usr/local/back_bot
-ADD . /usr/local/back_bot
+WORKDIR /user/local/back_bot
+ADD . .
+# run ls -a
 # RUN ls /usr/local/back_bot
 # RUN chmod +x /usr/local/bin/back_bot.py
-RUN chmod +x /usr/local/back_bot/back_bot.py
+RUN chmod +x back_bot.py
 # RUN apk del build-base
-ENTRYPOINT [ "/usr/local/bin/python", "/usr/local/back_bot/back_bot.py" ]
+ENTRYPOINT [ "/usr/local/bin/python", "back_bot.py" ]
