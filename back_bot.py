@@ -126,7 +126,7 @@ class LootTracker(object):
     def get_points(self, player):
         return self.players_to_points[player]
     
-    def get_loot_embed(self, player, bot = BACK_BOT, bot_name = 'Back Bot'):
+    def get_loot_embed(self, player, bot, bot_name = 'Back Bot'):
         lootBag = self.get_lootBag(player)
         
         em = discord.Embed(title=":back: Loot for "+player +": " +\
@@ -295,7 +295,7 @@ async def bitch(*args):
 @BACK_BOT.command(pass_context=True)
 async def loot(context):
     message = context.message
-    em = BACK_BOT.lootTracker.get_loot_embed(message.author.name)
+    em = BACK_BOT.lootTracker.get_loot_embed(message.author.name, BACK_BOT)
     return await BACK_BOT.send_message(message.channel, 
                                        embed=em)
 
