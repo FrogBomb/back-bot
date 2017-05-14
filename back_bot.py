@@ -54,7 +54,7 @@ class LootBag(object):
     def get_loot_dict(self):
         return self.loot_slots
     
-        
+
 class LootTracker(object):
     def __new__(cls, *args, **kwargs):
         #Load the LootTracker
@@ -262,8 +262,6 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 async def on_read():
     print("Back into action")
 
-
-message_loop = asyncio.get_event_loop()
 @BACK_BOT.event
 async def on_message(message):
     if(("back" in message.content.lower()) and (message.author.id != BACK_BOT.user.id)\
