@@ -242,8 +242,10 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         except Exception as e:
             print("Hang back! No audio play!")
             await failure_coroutine()
-
-        base, rarity, clip  = opus_filename.split("\\")
+        try:
+            base, rarity, clip  = opus_filename.split("\\")
+        except ValueError:
+            base, rarity, clip  = opus_filename.split("/")
         color = rarity_colors[rarity]
         em = discord.Embed(title= rarity + " :back:",\
                            description = clip,\
