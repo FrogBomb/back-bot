@@ -7,7 +7,7 @@ import asyncio
 from collections import defaultdict
 from os import environ
 from os import listdir
-from os.path import relpath, isfile, join
+from os.path import relpath, isfile, join, split
 import pickle
 
 ##GLOBALS
@@ -205,15 +205,15 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         if(back_bot.is_voice_connected(message.author.server)):
             voice_client = back_bot.voice_client_in(message.author.server)
             await voice_client.disconnect()
-
+        did_get_audio = True
         try:
-#           voice_client = await BACK_BOT.join_voice_channel(message.author.voice.voice_channel)
             async def join_the_channel():
                 return await asyncio.shield(back_bot.join_voice_channel(\
                                 message.author.voice.voice_channel))
 
             voice_client = await join_the_channel()
-                    #Play the audio, then disconnect
+
+            #Play the audio, then disconnect
             try:
 
                 def disconnect_from_vc(*args):
@@ -228,11 +228,6 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 
                 player.start()
 
-
-
-    #            time.sleep(staytime_seconds)
-    #            await voice_client.disconnect()
-
             except Exception as e:
                 await voice_client.disconnect()
                 await failure_coroutine()
@@ -241,19 +236,20 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 
         except Exception as e:
             print("Hang back! No audio play!")
+            did_get_audio = False
             await failure_coroutine()
-        try:
-            base, rarity, clip  = opus_filename.split("\\")
-        except ValueError:
-            base, rarity, clip  = opus_filename.split("/")
-        color = rarity_colors[rarity]
-        em = discord.Embed(title= rarity + " :back:",\
-                           description = clip,\
-                           color=color)
-        em.set_author(name='Back Bot', icon_url=BACK_BOT.user.avatar_url)
-        await BACK_BOT.send_message(message.channel, embed=em)
 
-        BACK_BOT.lootTracker(message.author.name, rarity, clip)
+        if(did_get_audio):
+            head, clip  = split(opus_filename)
+            base, rarity = split(head)
+            color = rarity_colors[rarity]
+            em = discord.Embed(title= rarity + " :back:",\
+                               description = clip,\
+                               color=color)
+            em.set_author(name='Back Bot', icon_url=BACK_BOT.user.avatar_url)
+            await BACK_BOT.send_message(message.channel, embed=em)
+
+            BACK_BOT.lootTracker(message.author.name, rarity, clip)
 
 
     else:
