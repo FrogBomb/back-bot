@@ -1,0 +1,5 @@
+version: '2'
+services:
+  robot:
+    environment:
+      TOKEN: '<YOUR DISCORD BOT TOKEN HERE>'
