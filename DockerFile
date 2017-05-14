@@ -1,7 +1,8 @@
 FROM python:3.5-alpine
 RUN apk add --no-cache build-base libffi-dev opus ffmpeg
 RUN python3 -m pip install -U discord.py youtube-dl PyNaCl
-#ADD back_bot.py /usr/local/bin/
+ARG TOKEN
+# ADD back_bot.py /usr/local/bin/
 #RUN chmod +x /usr/local/bin/back_bot.py
 RUN chmod +x back_bot.py
 #RUN apk del build-base

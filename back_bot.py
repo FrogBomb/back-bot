@@ -312,7 +312,8 @@ if __name__ == "__main__":
     BACK_BOT.lootTracker = LootTracker("loot.pickle")
 
     if "TOKEN" in environ:
-        BACK_BOT.run(environ.get("TOKEN"))
+        key = environ.get("TOKEN")
     else:
         with open("super_secret_key.txt") as f:
             key = f.readlines()[0].rstrip()
+    BACK_BOT.run(key)
