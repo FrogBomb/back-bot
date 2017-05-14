@@ -264,7 +264,9 @@ async def on_read():
 
 @BACK_BOT.event
 async def on_message(message):
-    if(("back" in message.content.lower()) and (message.author.id != BACK_BOT.user.id)\
+    if((("back" in message.content.lower())\
+            or ("\U0001f519" in message.content.lower()))\
+       and (message.author.id != BACK_BOT.user.id)\
        and BACK_BOT.voice_client_in(message.server) == None):
         
         print("back found! " + message.author.name + " is back at " + time.asctime())
