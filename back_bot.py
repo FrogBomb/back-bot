@@ -205,7 +205,6 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         if(back_bot.is_voice_connected(message.author.server)):
             voice_client = back_bot.voice_client_in(message.author.server)
             await voice_client.disconnect()
-        did_get_audio = True
         try:
             async def join_the_channel():
                 return await asyncio.shield(back_bot.join_voice_channel(\
@@ -236,20 +235,19 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 
         except Exception as e:
             print("Hang back! No audio play!")
-            did_get_audio = False
             await failure_coroutine()
+            raise e
 
-        if(did_get_audio):
-            head, clip  = split(opus_filename)
-            base, rarity = split(head)
-            color = rarity_colors[rarity]
-            em = discord.Embed(title= rarity + " :back:",\
-                               description = clip,\
-                               color=color)
-            em.set_author(name='Back Bot', icon_url=BACK_BOT.user.avatar_url)
-            await BACK_BOT.send_message(message.channel, embed=em)
+        head, clip  = split(opus_filename)
+        base, rarity = split(head)
+        color = rarity_colors[rarity]
+        em = discord.Embed(title= rarity + " :back:",\
+                           description = clip,\
+                           color=color)
+        em.set_author(name='Back Bot', icon_url=BACK_BOT.user.avatar_url)
+        await BACK_BOT.send_message(message.channel, embed=em)
 
-            BACK_BOT.lootTracker(message.author.name, rarity, clip)
+        BACK_BOT.lootTracker(message.author.name, rarity, clip)
 
 
     else:
