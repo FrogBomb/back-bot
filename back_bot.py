@@ -206,32 +206,30 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
             voice_client = back_bot.voice_client_in(message.author.server)
             await voice_client.disconnect()
         try:
-            async def join_the_channel():
-                return await asyncio.shield(back_bot.join_voice_channel(\
-                                message.author.voice.voice_channel))
-
-            voice_client = await join_the_channel()
+            voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
 
             #Play the audio, then disconnect
             try:
 
                 def disconnect_from_vc(*args):
-    #                print("after called")
-                    dc_fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), BACK_BOT.loop)
+                    dc_fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
                     try:
                         dc_fut.result()
                     except:
-                        pass
+                        dc_fut.cancel()
 
                 player = voice_client.create_ffmpeg_player(opus_filename, after = disconnect_from_vc)
 
                 player.start()
 
             except Exception as e:
-                await voice_client.disconnect()
+                await asyncio.shield(voice_client.disconnect())
                 await failure_coroutine()
                 raise e
 
+        except discord.errors.ConnectionClosed as cE:
+            print("There's a connection backup!", cE)
+            return
 
         except Exception as e:
             print("Hang back! No audio play!")
