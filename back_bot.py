@@ -85,6 +85,8 @@ class LootTracker(object):
         LootBag.loot_rarities = [r for r in LootBag.loot_rarities\
                      if not (r in rollback_rarities)]
 
+        self.loot_rarities = LootBag.loot_rarities
+
         self.rollbacks = rollback_rarities
 
         #Dict to find point values
@@ -130,7 +132,7 @@ class LootTracker(object):
     def get_loot_embed(self, player, bot, bot_name = 'Back Bot'):
         lootBag = self.get_lootBag(player)
 
-        em = discord.Embed(title=":back: Loot for "+player +": " +\
+        em = discord.Embed(title=":back: Loot for "+ player +": " +\
                            str(self.get_points(player)),\
                            color = discord.Color.gold())
         key_list = [r for r in self.rarities_to_points.keys()]
@@ -148,12 +150,38 @@ class LootTracker(object):
         if value == '':
             value = 'None Yet!'
 
-        return {"name": rarity +": " + str(total) + " (" + str(self.rarities_to_points[rarity]) +\
+        return {"name": rarity + ": " + str(total) + " (" + str(self.rarities_to_points[rarity]) +\
                                    " points back)",\
                 "value": value}
+
     def _rollback_warn_field(self):
         return {"name": "BEWARE OF THE ROLLBACK!",\
                 "value": "IT WILL TAKE BACK YOUR LOOT!"}
+
+
+    def get_leaderboad_embed(self, rarity_file_totals, bot, bot_name = 'Back Bot'):
+        points_sorted = sorted([i for i in set(self.players_to_points.values())],\
+                               reverse = True)
+        player_to_rank = {p: points_sorted.index(self.players_to_points[p]) + 1\
+                          for p in self.players_to_points.keys()}
+        players_sorted_by_rank = sorted(player_to_rank, key = lambda p: player_to_rank[p])
+        em = discord.Embed(title=":back: BOARD: ", color = discord.Color.dark_gold())
+        for p in players_sorted_by_rank:
+            if(player_to_rank[p] == len(players_sorted_by_rank)):
+                rank_str = "Coming in :back:"
+            else:
+                rank_str = "#" + str(player_to_rank[p])
+            field = self._player_rank_field(p, rank_str, rarity_file_totals)
+            em.add_field(**field, inline=False)
+        em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
+        return em
+
+    def _player_rank_field(self, player, rank_str, rarity_file_totals):
+        loot_dict_for_player = self.get_lootBag(player).get_loot_dict()
+        loot_counts_for_player = {r: len(loot_dict_for_player[r]) for r in self.loot_rarities}
+        return {"name": rank_str + " " + player + ": " + str(self.players_to_points[player]),
+                "value": "\n".join(r + ": " + str(loot_counts_for_player[r]) + " / " +\
+                                   str(rarity_file_totals[r]) for r in self.loot_rarities)}
 
     def save(self):
         if self.save_location != None:
@@ -290,6 +318,13 @@ async def bitch(*args):
 async def loot(context):
     message = context.message
     em = BACK_BOT.lootTracker.get_loot_embed(message.author.name, BACK_BOT)
+    return await BACK_BOT.send_message(message.channel,
+                                       embed=em)
+@BACK_BOT.command(pass_context=True)
+async def board(context):
+    message = context.message
+    rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
+    em = BACK_BOT.lootTracker.get_leaderboad_embed(rarity_file_totals, BACK_BOT)
     return await BACK_BOT.send_message(message.channel,
                                        embed=em)
 
