@@ -363,6 +363,12 @@ async def playback(context):
     if(filename):
         return await play_opus_audio_to_channel_then_leave(message, filename, give_loot=False)
 
+@BACK_BOT.command(pass_context=True)
+async def rollback(context):
+    message = context.message
+    filename = pick_random_file(rarities = ["Rollback"])
+    return await play_opus_audio_to_channel_then_leave(message, filename, give_loot=False)
+
 if __name__ == "__main__":
     if not discord.opus.is_loaded():
         # the 'opus' library here is opus.dll on windows
