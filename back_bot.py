@@ -61,9 +61,24 @@ class LootBag(object):
                 elif self.loot_slots[r][loot_name] == 1:
                     del (self.loot_slots[r][loot_name])
                     return r
+                else:
+                    del (self.loot_slots[r][loot_name])
             except KeyError:
                 pass
         return
+
+    def clean(self):
+        to_del = []
+        for r in self.loot_slots.keys():
+            for l in self.loot_slots[r].keys():
+                if self.loot_slots[r][l] < 1:
+                    to_del += [(r, l)]
+
+        for k, l in to_del:
+            try:
+                del (self.loot_slots[r][l])
+            except KeyError:
+                pass
 
     def get_loot_dict(self):
         return self.loot_slots
@@ -204,6 +219,10 @@ class LootTracker(object):
             with open(self.save_location, 'wb') as f:
                 pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
 
+    def clean(self):
+        for l in self.players_to_loot.values():
+            l.clean()
+
     def rollback(self, player):
         try:
             del self.players_to_points[player]
@@ -217,6 +236,8 @@ class LootTracker(object):
             self.save()
             return join(base_back_dir, rarity, loot_name)
         return
+
+
 
 ##FUNCTIONS
 def pick_random_file(file_dict = BACK_FILE_DICT, rarities = RARITIES):
@@ -331,7 +352,6 @@ async def on_message(message):
 
     await BACK_BOT.process_commands(message)
 
-
 @BACK_BOT.command()
 async def im_back(*args):
     return await BACK_BOT.say("Hi Back")
@@ -388,7 +408,7 @@ if __name__ == "__main__":
 
     ##Python dependency injector: Not hard!
     BACK_BOT.lootTracker = LootTracker("loot.pickle")
-
+    BACK_BOT.lootTracker.clean()
     if "TOKEN" in environ:
         key = environ.get("TOKEN")
     else:
