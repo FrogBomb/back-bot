@@ -205,8 +205,11 @@ class LootTracker(object):
                 pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
 
     def rollback(self, player):
-        del self.players_to_points[player]
-        del self.players_to_loot[player]
+        try:
+            del self.players_to_points[player]
+            del self.players_to_loot[player]
+        except KeyError:
+            pass
 
     def playback(self, player, loot_name, base_back_dir):
         rarity = self.players_to_loot[player].rm_loot(loot_name)
