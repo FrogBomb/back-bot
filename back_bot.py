@@ -35,7 +35,7 @@ BACK_FILE_DICT = {r: [join(BACK_FILE_DIR, r, f) for f in \
 
 CMD_PREFIX = '~'
 BACK_BOT = Bot(CMD_PREFIX)
-
+ROLLBACK_THRESHOLD = 10000
 ##CLASSES
 class LootBag(object):
     loot_rarities = [r for r in RARITIES]
@@ -177,7 +177,7 @@ class LootTracker(object):
         players_sorted_by_rank = sorted(player_to_rank, key = lambda p: player_to_rank[p])
         em = discord.Embed(title=":back: BOARD: ", color = discord.Color.dark_gold())
         for p in players_sorted_by_rank:
-            if(player_to_rank[p] == len(players_sorted_by_rank)):
+            if(player_to_rank[p] == max(player_to_rank.values())):
                 rank_str = "Coming in :back:"
             else:
                 rank_str = "#" + str(player_to_rank[p])
@@ -369,8 +369,13 @@ async def playback(context):
 @BACK_BOT.command(pass_context=True)
 async def rollback(context):
     message = context.message
-    filename = pick_random_file(rarities = {"Rollback": 1})
-    return await play_opus_audio_to_channel_then_leave(message, filename)
+    if BACK_BOT.lootTracker.get_points(message.author.name) >= ROLLBACK_THRESHOLD:
+        filename = pick_random_file(rarities = {"Rollback": 1})
+        return await play_opus_audio_to_channel_then_leave(message, filename)
+    else:
+        return await BACK_BOT.say("You have to have over " +\
+                                  str(ROLLBACK_THRESHOLD) +\
+                                  " Points to force a Rollback!")
 
 if __name__ == "__main__":
     if not discord.opus.is_loaded():
