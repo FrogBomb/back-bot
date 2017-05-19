@@ -33,7 +33,8 @@ BACK_FILE_DICT = {r: [join(BACK_FILE_DIR, r, f) for f in \
                       isfile(join(BACK_FILE_DIR, r, f))]\
                             for r in RARITIES}
 
-BACK_BOT = Bot("~")
+CMD_PREFIX = '~'
+BACK_BOT = Bot(CMD_PREFIX)
 
 ##CLASSES
 class LootBag(object):
@@ -43,14 +44,26 @@ class LootBag(object):
         self._rarities = LootBag.loot_rarities
         #Loot slots will be dictionaries to the counts of loot.
         #Defaults to 0
-        self.loot_slots = {r: defaultdict(int) for r in self._rarities}
+        self.loot_slots = {r: {} for r in self._rarities}
 
     def add_loot(self, rarity, loot_name):
         try:
             self.loot_slots[rarity][loot_name] += 1
         except KeyError:
-            self.loot_slots[rarity] = defaultdict(int)
-            self.loot_slots[rarity][loot_name] += 1
+            self.loot_slots[rarity] = {loot_name: 1}
+
+    def rm_loot(self, loot_name): #Returns stored rarity. None otherwise
+        for r in self.loot_slots.keys():
+            try:
+                if self.loot_slots[r][loot_name] > 1:
+                    self.loot_slots[r][loot_name] -= 1
+                    return r
+                elif self.loot_slots[r][loot_name] == 1:
+                    del (self.loot_slots[r][loot_name])
+                    return r
+            except KeyError:
+                pass
+        return
 
     def get_loot_dict(self):
         return self.loot_slots
@@ -160,10 +173,7 @@ class LootTracker(object):
 
 
     def get_leaderboad_embed(self, rarity_file_totals, bot, bot_name = 'Back Bot'):
-        points_sorted = sorted([i for i in set(self.players_to_points.values())],\
-                               reverse = True)
-        player_to_rank = {p: points_sorted.index(self.players_to_points[p]) + 1\
-                          for p in self.players_to_points.keys()}
+        player_to_rank = self._gen_player_to_rank_dict()
         players_sorted_by_rank = sorted(player_to_rank, key = lambda p: player_to_rank[p])
         em = discord.Embed(title=":back: BOARD: ", color = discord.Color.dark_gold())
         for p in players_sorted_by_rank:
@@ -175,6 +185,12 @@ class LootTracker(object):
             em.add_field(**field, inline=False)
         em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
         return em
+
+    def _gen_player_to_rank_dict(self):
+        points_sorted = sorted([i for i in set(self.players_to_points.values())],\
+                               reverse = True)
+        return {p: points_sorted.index(self.players_to_points[p]) + 1\
+                for p in self.players_to_points.keys()}
 
     def _player_rank_field(self, player, rank_str, rarity_file_totals):
         loot_dict_for_player = self.get_lootBag(player).get_loot_dict()
@@ -192,7 +208,12 @@ class LootTracker(object):
         del self.players_to_points[player]
         del self.players_to_loot[player]
 
-
+    def playback(self, player, loot_name, base_back_dir):
+        rarity = self.players_to_loot[player].rm_loot(loot_name)
+        if(rarity):
+            self.save()
+            return join(base_back_dir, rarity, loot_name)
+        return
 
 ##FUNCTIONS
 def pick_random_file(file_dict = BACK_FILE_DICT, rarities = RARITIES):
@@ -208,13 +229,22 @@ def pick_random_file(file_dict = BACK_FILE_DICT, rarities = RARITIES):
 def pick_random_from_list(inList):
     return inList[random.randint(0, len(inList) - 1)]
 
+def back_embed(clip, rarity, rarity_colors, back_bot = BACK_BOT):
+            color = rarity_colors[rarity]
+            em = discord.Embed(title= rarity + " :back:",\
+                               description = clip,\
+                               color=color)
+            em.set_author(name='Back Bot', icon_url=back_bot.user.avatar_url)
+            return em
+
 async def nil_corout():
     return
 
 async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
                                            failure_coroutine = nil_corout,
                                            back_bot = BACK_BOT,
-                                           rarity_colors = RARITY_COLORS):
+                                           rarity_colors = RARITY_COLORS,
+                                           give_loot = True):
     """
     Plays a .opus audio file through the bot.
 
@@ -266,15 +296,10 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 
         head, clip  = split(opus_filename)
         base, rarity = split(head)
-        color = rarity_colors[rarity]
-        em = discord.Embed(title= rarity + " :back:",\
-                           description = clip,\
-                           color=color)
-        em.set_author(name='Back Bot', icon_url=BACK_BOT.user.avatar_url)
-        await BACK_BOT.send_message(message.channel, embed=em)
-
-        BACK_BOT.lootTracker(message.author.name, rarity, clip)
-
+        em = back_embed(clip, rarity, rarity_colors, back_bot)
+        await back_bot.send_message(message.channel, embed=em)
+        if(give_loot):
+            back_bot.lootTracker(message.author.name, rarity, clip)
 
     else:
         await failure_coroutine()
@@ -286,7 +311,9 @@ async def on_read():
 
 @BACK_BOT.event
 async def on_message(message):
-    if((("back" in message.content.lower())\
+    if(len(message.content)>0 and message.content[:len(CMD_PREFIX)] == CMD_PREFIX):
+        pass
+    elif((("back" in message.content.lower())\
             or ("\U0001f519" in message.content.lower()))\
        and (message.author.id != BACK_BOT.user.id)\
        and BACK_BOT.voice_client_in(message.server) == None):
@@ -327,6 +354,14 @@ async def board(context):
     em = BACK_BOT.lootTracker.get_leaderboad_embed(rarity_file_totals, BACK_BOT)
     return await BACK_BOT.send_message(message.channel,
                                        embed=em)
+
+@BACK_BOT.command(pass_context=True)
+async def playback(context):
+    message = context.message
+    back_to_play = (message.content).split(" ")[1]
+    filename = BACK_BOT.lootTracker.playback(message.author.name, back_to_play, BACK_FILE_DIR)
+    if(filename):
+        return await play_opus_audio_to_channel_then_leave(message, filename, give_loot=False)
 
 if __name__ == "__main__":
     if not discord.opus.is_loaded():
