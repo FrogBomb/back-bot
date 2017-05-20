@@ -32,17 +32,9 @@ class LootBag(object):
         return
 
     def clean(self):
-        to_del = []
-        for r in self.loot_slots.keys():
-            for l in self.loot_slots[r].keys():
-                if self.loot_slots[r][l] < 1:
-                    to_del += [(r, l)]
-
-        for k, l in to_del:
-            try:
-                del (self.loot_slots[r][l])
-            except KeyError:
-                pass
+        to_del = [(r, l) for r in self.loot_slots.keys() for l in self.loot_slots[r].keys() if self.loot_slots[r][l] < 1]
+        for r, l in to_del:
+            del (self.loot_slots[r][l])
 
     def get_loot_dict(self):
         return self.loot_slots
