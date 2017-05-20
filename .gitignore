@@ -3,3 +3,4 @@
 *.pyc
 *.yml
 super_secret_key.txt
+**/__pycache__/
