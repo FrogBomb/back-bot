@@ -1,5 +1,6 @@
 from BotGlobals import RARITIES
 from collections import defaultdict
+from HelperFunctions.backFileHelpers import get_back_file_rarity, is_a_back_file_with_rarity
 
 class LootBag(object):
     loot_rarities = [r for r in RARITIES]
@@ -32,9 +33,32 @@ class LootBag(object):
         return
 
     def clean(self):
-        to_del = [(r, l) for r in self.loot_slots.keys() for l in self.loot_slots[r].keys() if self.loot_slots[r][l] < 1]
+        to_move_map = {(prevRarity, l): get_back_file_rarity(l)\
+                       for prevRarity in self.loot_slots.keys()\
+                       for l in self.loot_slots[prevRarity].keys()\
+                       if (not is_a_back_file_with_rarity(prevRarity, l))}
+
+        to_del = [(r, l) for r in self.loot_slots.keys()\
+                  for l in self.loot_slots[r].keys()\
+                  if (self.loot_slots[r][l] < 1) or (None == to_move_map[(r, l)])]
+
         for r, l in to_del:
+            del to_move_map[(r, l)]
             del (self.loot_slots[r][l])
+
+        for r, l in to_move_map.keys():
+            new_r = to_move_map[(r, l)]
+            if new_r in self.loot_slots:
+                if l in self.loot_slots[new_r]:
+                    # Add loot to the new location
+                    self.loot_slots[new_r][l] += self.loot_slots[r][l]
+                else:
+                    # Move loot to the new location
+                    self.loot_slots[new_r][l] = self.loot_slots[r][l]
+            else:
+                # Looking both ways down a one way street... pickle is scary
+                self.loot_slots[new_r] = {l: self.loot_slots[r][l]}
+            del self.loot_slots[r][l]
 
     def get_loot_dict(self):
         return self.loot_slots
