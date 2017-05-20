@@ -40,13 +40,16 @@ class LootBag(object):
 
         to_del = [(r, l) for r in self.loot_slots.keys()\
                   for l in self.loot_slots[r].keys()\
-                  if (self.loot_slots[r][l] < 1) or (None == to_move_map[(r, l)])]
+                  if (self.loot_slots[r][l] < 1) or\
+                  ((r, l) in to_move_map and (None == to_move_map[(r, l)]))]
 
         for r, l in to_del:
+            print("Deleting", r, l, "with the value", self.loot_slots[r][l])
             del to_move_map[(r, l)]
             del (self.loot_slots[r][l])
 
         for r, l in to_move_map.keys():
+            print("Moving", r, l, "with the value", self.loot_slots[r][l], "to", to_move_map[(r, l)])
             new_r = to_move_map[(r, l)]
             if new_r in self.loot_slots:
                 if l in self.loot_slots[new_r]:

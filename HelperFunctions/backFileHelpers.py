@@ -8,6 +8,6 @@ def is_a_back_file_with_rarity(rarity, back_file_name):
         return False
 
 def get_back_file_rarity(back_file_name):
-    for r in BACK_FILE_DIR.keys():
+    for r in BACK_FILE_DICT.keys():
         if(is_a_back_file_with_rarity(r, back_file_name)):
             return r
