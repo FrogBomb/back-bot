@@ -64,7 +64,7 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 
         head, clip  = split(opus_filename)
         base, rarity = split(head)
-        em = back_embed(clip, rarity, rarity_colors, back_bot)
+        em = back_embed(clip, rarity, rarity_colors, back_bot, message.author.name)
         await back_bot.send_message(message.channel, embed=em)
         if(give_loot):
             back_bot.lootTracker(message.author.name, rarity, clip)
