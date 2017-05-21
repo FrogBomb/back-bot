@@ -13,7 +13,10 @@ class LootBag(object):
 
     def add_loot(self, rarity, loot_name):
         try:
-            self.loot_slots[rarity][loot_name] += 1
+            if(loot_name in self.loot_slots[rarity]):
+                self.loot_slots[rarity][loot_name] += 1
+            else:
+                self.loot_slots[rarity][loot_name] = 1
         except KeyError:
             self.loot_slots[rarity] = {loot_name: 1}
 
