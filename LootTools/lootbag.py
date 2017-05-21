@@ -9,16 +9,17 @@ class LootBag(object):
         self._rarities = LootBag.loot_rarities
         #Loot slots will be dictionaries to the counts of loot.
         #Defaults to 0
-        self.loot_slots = {r: {} for r in self._rarities}
+        self.loot_slots = {r: defaultdict(int) for r in self._rarities}
 
     def add_loot(self, rarity, loot_name):
         try:
-            if(loot_name in self.loot_slots[rarity]):
+            if(loot_name in self.loot_slots[rarity]): #If/Else for some pickles
                 self.loot_slots[rarity][loot_name] += 1
             else:
                 self.loot_slots[rarity][loot_name] = 1
         except KeyError:
-            self.loot_slots[rarity] = {loot_name: 1}
+            self.loot_slots[rarity] = defaultdict(int)
+            self.loot_slots[rarity][loot_name] = 1
 
     def rm_loot(self, loot_name): #Returns stored rarity. None otherwise
         for r in self.loot_slots.keys():
