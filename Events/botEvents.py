@@ -77,27 +77,27 @@ async def rollback(context):
                                   str(ROLLBACK_THRESHOLD) +\
                                   " Points to force a Rollback!")
 
-@BACK_BOT.command(pass_context=True)
-async def give(context):
-    message = context.message
-    try:
-        what_back, to_who = [w.strip() for w in " ".join((message.content).split(" ")[1:]).split("->")]
-    except ValueError:
-        return await BACK_BOT.say(_help_on_give(CMD_PREFIX + "give"))
-    lootTracker = BACK_BOT.lootTracker
-    player = message.author.name
-    if player in lootTracker.players_to_loot:
-        giving_players_lootBag = lootTracker.players_to_loot[player]
-        rarity = giving_players_lootBag.rm_loot(what_back)
-        if rarity != None:
-            lootTracker.add_loot(to_who, rarity, what_back)
-            return await BACK_BOT.say(\
-                            "{p} gave back {back} to {friend}!".format(\
-                                      p=player, back=what_back, friend=to_who))
-        else:
-            return await BACK_BOT.say("You don't have that back!")
-    else:
-        return await BACK_BOT.say("You haven't even hit the back ~board!")
-
-def _help_on_give(commandToGive):
-    return "To give back: ```\n{cmd} my_back.mp4 -> UserNameOfFriend\n```".format(cmd=commandToGive)
+# @BACK_BOT.command(pass_context=True)
+# async def give(context):
+#     message = context.message
+#     try:
+#         what_back, to_who = [w.strip() for w in " ".join((message.content).split(" ")[1:]).split("->")]
+#     except ValueError:
+#         return await BACK_BOT.say(_help_on_give(CMD_PREFIX + "give"))
+#     lootTracker = BACK_BOT.lootTracker
+#     player = message.author.name
+#     if player in lootTracker.players_to_loot:
+#         giving_players_lootBag = lootTracker.players_to_loot[player]
+#         rarity = giving_players_lootBag.rm_loot(what_back)
+#         if rarity != None:
+#             lootTracker.add_loot(to_who, rarity, what_back)
+#             return await BACK_BOT.say(\
+#                             "{p} gave back {back} to {friend}!".format(\
+#                                       p=player, back=what_back, friend=to_who))
+#         else:
+#             return await BACK_BOT.say("You don't have that back!")
+#     else:
+#         return await BACK_BOT.say("You haven't even hit the back ~board!")
+#
+# def _help_on_give(commandToGive):
+#     return "To give back: ```\n{cmd} my_back.mp4 -> UserNameOfFriend\n```".format(cmd=commandToGive)
