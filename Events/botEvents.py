@@ -61,7 +61,7 @@ async def board(context):
 @BACK_BOT.command(pass_context=True)
 async def playback(context):
     message = context.message
-    back_to_play = " ".join((message.content).split(" ")[1:])
+    back_to_play = " ".join((message.content).split(" ")[1:]).strip()
     filename = BACK_BOT.lootTracker.playback(message.author.name, back_to_play, BACK_FILE_DIR)
     if(filename):
         return await play_opus_audio_to_channel_then_leave(message, filename, give_loot=False)
