@@ -71,6 +71,8 @@ async def board(context):
 async def playback(context, back_file):
     """
     Play a back you collected!
+    (if there are spaces, use quotes.
+    ~playback "my spaced back file.mp4")
     """
     message = context.message
     back_to_play = back_file
@@ -97,15 +99,32 @@ async def rollback(context):
                                   " Points to force a Rollback!")
 
 @BACK_BOT.command(pass_context=True)
-async def stats(context):
+async def stats(context, player_name = None):
     """
-    See your BACK Board stats!
+    See your (or someone else's) BACK Board stats!
+
+    (if there are spaces, use quotes.
+    ~stats "Frog Bomb")
     """
     message = context.message
     rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
-    em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author, rarity_file_totals, BACK_BOT)
+
+    if(player_name == None):
+        em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author,\
+                                                                  rarity_file_totals,\
+                                                                  BACK_BOT)
+    else:
+        class Dummy_Player(object):
+            def __init__(self, name = None, id = None):
+                self.id = id
+                self.name = name
+
+        em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(Dummy_Player(player_name),\
+                                                                  rarity_file_totals,\
+                                                                  BACK_BOT)
     return await BACK_BOT.send_message(message.channel,
-                                       embed=em)
+                                           embed=em)
+
 
 # @BACK_BOT.command(pass_context=True)
 # async def give(context):
