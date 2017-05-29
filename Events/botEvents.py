@@ -78,7 +78,7 @@ async def rollback(context):
                                   str(ROLLBACK_THRESHOLD) +\
                                   " Points to force a Rollback!")
 
-@BACK_BOT.command(pass_context=true):
+@BACK_BOT.command(pass_context=True)
 async def stats(context):
     message = context.messgae
     rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
