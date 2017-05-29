@@ -65,6 +65,11 @@ class LootTracker(object):
             self.players_to_loot = defaultdict(LootBag)
 
     def add_loot(self, player, rarity, loot_name):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
         if rarity in self.rollbacks:
             self.rollback(player)
         else:
@@ -75,12 +80,25 @@ class LootTracker(object):
     __call__ = add_loot #alias
 
     def get_lootBag(self, player):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
         return self.players_to_loot[player]
 
     def get_points(self, player):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
         return self.players_to_points[player]
 
     def get_loot_embed(self, player, bot, bot_name = 'Back Bot'):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
         lootBag = self.get_lootBag(player)
 
         em = discord.Embed(title=":back: Loot for "+ player +": " +\
@@ -148,12 +166,21 @@ class LootTracker(object):
 
     def rollback(self, player):
         try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+            
+        try:
             del self.players_to_points[player]
             del self.players_to_loot[player]
         except KeyError:
             pass
 
     def playback(self, player, loot_name, base_back_dir):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
         rarity = self.players_to_loot[player].rm_loot(loot_name)
         if(rarity):
             self.save()
