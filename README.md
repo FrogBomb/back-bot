@@ -1,7 +1,7 @@
 # Back Bot
 ### A bot for the best joke of all time
 
-## Make sure you have already set up a discord bot, and provide the API key in a file named `super_secret_key.txt`
+#### _Before running, make sure you have already set up a discord bot, and provide the API key in a file named `super_secret_key.txt`_
 
 ## THIS BOT CAN BE RUN THROUGH DOCKER OR LOCALLY!
 If Docker is setup and the daemon is running, simply change the
