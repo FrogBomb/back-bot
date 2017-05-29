@@ -142,6 +142,25 @@ class LootTracker(object):
         em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
         return em
 
+    def get_leaderboad_embed_for_player(self, player, rarity_file_totals, bot, bot_name = 'Back Bot'):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
+        player_to_rank = self._gen_player_to_rank_dict()
+        em = discord.Embed(title=":back: STATS: ", color = discord.Color.dark_gold())
+        
+        if(player_to_rank[player] == max(player_to_rank.values())):
+            rank_str = "Coming in :back:"
+        else:
+            rank_str = "#" + str(player_to_rank[p])
+        field = self._player_rank_field(player, rank_str, rarity_file_totals)
+        em.add_field(**field, inline=False)
+
+        em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
+        return em
+
     def _gen_player_to_rank_dict(self):
         points_sorted = sorted([i for i in set(self.players_to_points.values())],\
                                reverse = True)
@@ -169,7 +188,7 @@ class LootTracker(object):
             player = player.name ##TODO: no longer use just name to id
         except AttributeError:
             pass
-            
+
         try:
             del self.players_to_points[player]
             del self.players_to_loot[player]

@@ -78,11 +78,13 @@ async def rollback(context):
                                   str(ROLLBACK_THRESHOLD) +\
                                   " Points to force a Rollback!")
 
-# @BACK_BOT.command(pass_context=true):
-# async def totals(context):
-#     message = context.messgae
-#     rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
-#     em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author, rarity_file_totals, BACK_BOT)
+@BACK_BOT.command(pass_context=true):
+async def stats(context):
+    message = context.messgae
+    rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
+    em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author, rarity_file_totals, BACK_BOT)
+    return await BACK_BOT.send_message(message.channel,
+                                       embed=em)
 
 # @BACK_BOT.command(pass_context=True)
 # async def give(context):
