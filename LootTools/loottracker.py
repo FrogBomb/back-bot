@@ -27,7 +27,7 @@ class LootTracker(object):
         else:
             return super(LootTracker, cls).__new__(cls)
 
-    def __init__(self, save_location = None, loot_mult = 100.0,\
+    def __init__(self, save_location = None, loot_mult = 300.0,\
                  rarities = RARITIES, rarity_colors = RARITY_COLORS,
                  rollback_rarities = ["Rollback"]):
 
@@ -39,11 +39,13 @@ class LootTracker(object):
 
         self.rollbacks = rollback_rarities
 
-        #Dict to find point values
-        numerator = sum(rarities[k] for k in rarities\
-                        if not (k in rollback_rarities))*loot_mult
+        not_rollback_points = [rarities[k] for k in rarities\
+                        if not (k in rollback_rarities)]
 
-        self.rarities_to_points = {k: int(numerator/rarities[k])\
+        #Dict to find point values
+        weight = sum(not_rollback_points)*loot_mult/len(not_rollback_points)
+
+        self.rarities_to_points = {k: int(weight/rarities[k])\
                                    for k in rarities\
                                    if not (k in rollback_rarities)}
 
@@ -64,6 +66,11 @@ class LootTracker(object):
             self.players_to_loot = defaultdict(LootBag)
 
     def add_loot(self, player, rarity, loot_name):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
         if rarity in self.rollbacks:
             self.rollback(player)
         else:
@@ -74,12 +81,25 @@ class LootTracker(object):
     __call__ = add_loot #alias
 
     def get_lootBag(self, player):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
         return self.players_to_loot[player]
 
     def get_points(self, player):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
         return self.players_to_points[player]
 
     def get_loot_embed(self, player, bot, bot_name = 'Back Bot'):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
         lootBag = self.get_lootBag(player)
 
         em = discord.Embed(title=":back: Loot for "+ player +": " +\
@@ -123,6 +143,25 @@ class LootTracker(object):
         em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
         return em
 
+    def get_leaderboad_embed_for_player(self, player, rarity_file_totals, bot, bot_name = 'Back Bot'):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
+        player_to_rank = self._gen_player_to_rank_dict()
+        em = discord.Embed(title=":back: STATS: ", color = discord.Color.dark_gold())
+
+        if(player_to_rank[player] == max(player_to_rank.values())):
+            rank_str = "Coming in :back:"
+        else:
+            rank_str = "#" + str(player_to_rank[player])
+        field = self._player_rank_field(player, rank_str, rarity_file_totals)
+        em.add_field(**field, inline=False)
+
+        em.set_author(name=bot_name, icon_url=bot.user.avatar_url)
+        return em
+
     def _gen_player_to_rank_dict(self):
         points_sorted = sorted([i for i in set(self.players_to_points.values())],\
                                reverse = True)
@@ -147,12 +186,21 @@ class LootTracker(object):
 
     def rollback(self, player):
         try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
+
+        try:
             del self.players_to_points[player]
             del self.players_to_loot[player]
         except KeyError:
             pass
 
     def playback(self, player, loot_name, base_back_dir):
+        try:
+            player = player.name ##TODO: no longer use just name to id
+        except AttributeError:
+            pass
         rarity = self.players_to_loot[player].rm_loot(loot_name)
         if(rarity):
             self.save()
