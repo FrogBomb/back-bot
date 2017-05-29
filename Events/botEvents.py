@@ -80,7 +80,7 @@ async def rollback(context):
 
 @BACK_BOT.command(pass_context=True)
 async def stats(context):
-    message = context.messgae
+    message = context.message
     rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
     em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author, rarity_file_totals, BACK_BOT)
     return await BACK_BOT.send_message(message.channel,

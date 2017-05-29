@@ -150,11 +150,11 @@ class LootTracker(object):
 
         player_to_rank = self._gen_player_to_rank_dict()
         em = discord.Embed(title=":back: STATS: ", color = discord.Color.dark_gold())
-        
+
         if(player_to_rank[player] == max(player_to_rank.values())):
             rank_str = "Coming in :back:"
         else:
-            rank_str = "#" + str(player_to_rank[p])
+            rank_str = "#" + str(player_to_rank[player])
         field = self._player_rank_field(player, rank_str, rarity_file_totals)
         em.add_field(**field, inline=False)
 
