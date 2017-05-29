@@ -1,11 +1,22 @@
 import discord
+import logging
 from os import environ
 from BotGlobals import BACK_BOT
 import Events.botEvents
 from LootTools import LootTracker, LootBag
 from sys import argv
 
+
+
 if __name__ == "__main__":
+    ##TODO: Debug mode
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
+
+    print("discord.py v{v}".format(v=discord.__version__))
     if("--clean" in argv):
         lt = LootTracker("loot.pickle")
         lt.clean()
