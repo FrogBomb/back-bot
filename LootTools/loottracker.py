@@ -26,7 +26,7 @@ class LootTracker(object):
         else:
             return super(LootTracker, cls).__new__(cls)
 
-    def __init__(self, save_location = None, loot_mult = 100.0,\
+    def __init__(self, save_location = None, loot_mult = 300.0,\
                  rarities = RARITIES, rarity_colors = RARITY_COLORS,
                  rollback_rarities = ["Rollback"]):
 
@@ -38,11 +38,13 @@ class LootTracker(object):
 
         self.rollbacks = rollback_rarities
 
-        #Dict to find point values
-        numerator = sum(rarities[k] for k in rarities\
-                        if not (k in rollback_rarities))*loot_mult
+        not_rollback_points = [rarities[k] for k in rarities\
+                        if not (k in rollback_rarities)]
 
-        self.rarities_to_points = {k: int(numerator/rarities[k])\
+        #Dict to find point values
+        weight = sum(not_rollback_points)*loot_mult/len(not_rollback_points)
+
+        self.rarities_to_points = {k: int(weight/rarities[k])\
                                    for k in rarities\
                                    if not (k in rollback_rarities)}
 
