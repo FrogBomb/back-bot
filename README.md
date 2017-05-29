@@ -15,7 +15,7 @@ the file to `docker-compose.yml`. Then, just run:
 ## Without Docker...
 
 ## Dependencies
-* Python 3.4.2+
+* Python 3.5.3+
 * discord.py
 * PyNaCl
 * ffmpeg
