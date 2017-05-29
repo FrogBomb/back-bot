@@ -1,6 +1,8 @@
 # Back Bot
 ### A bot for the best joke of all time
 
+#### _Before running, make sure you have already set up a discord bot, and provide the API key in a file named `super_secret_key.txt`_
+
 ## THIS BOT CAN BE RUN THROUGH DOCKER OR LOCALLY!
 If Docker is setup and the daemon is running, simply change the
 `docker-compose.yml.example` file to contain you bot API token and rename
@@ -10,7 +12,7 @@ the file to `docker-compose.yml`. Then, just run:
   $ docker-compose up
 ```
 
-##Without Docker...
+## Without Docker...
 
 ## Dependencies
 * Python 3.4.2+
