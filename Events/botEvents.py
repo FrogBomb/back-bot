@@ -19,7 +19,8 @@ async def on_message(message):
     if(len(message.content)>0 and message.content[:len(CMD_PREFIX)] == CMD_PREFIX):
         pass
     elif((("back" in message.content.lower())\
-            or ("\U0001f519" in message.content.lower()))\
+            or ("\U0001f519" in message.content.lower())\
+            or ("⠃⠁⠉⠅" in message.content.lower()))\
        and (message.author.id != BACK_BOT.user.id)\
        and BACK_BOT.voice_client_in(message.server) == None):
 
