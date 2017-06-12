@@ -34,22 +34,23 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
         try:
             voice_client = await back_bot.join_voice_channel(message.author.voice.voice_channel)
 
+            def disconnect_from_vc(*args):
+                dc_fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
+                try:
+                    dc_fut.result()
+                except:
+                    dc_fut.cancel()
+
             #Play the audio, then disconnect
             try:
-
-                def disconnect_from_vc(*args):
-                    dc_fut = asyncio.run_coroutine_threadsafe(voice_client.disconnect(), back_bot.loop)
-                    try:
-                        dc_fut.result()
-                    except:
-                        dc_fut.cancel()
 
                 player = voice_client.create_ffmpeg_player(opus_filename, after = disconnect_from_vc)
 
                 player.start()
 
             except Exception as e:
-                await asyncio.shield(voice_client.disconnect())
+                print("Back out! Couldn't play the audio!", e)
+                await asyncio.wait_for(voice_client.disconnect(), 2)
                 await failure_coroutine()
                 raise e
 
