@@ -19,7 +19,8 @@ async def on_message(message):
     if(len(message.content)>0 and message.content[:len(CMD_PREFIX)] == CMD_PREFIX):
         pass
     elif((("back" in message.content.lower())\
-            or ("\U0001f519" in message.content.lower()))\
+            or ("\U0001f519" in message.content.lower())\
+            or ("⠃⠁⠉⠅" in message.content.lower()))\
        and (message.author.id != BACK_BOT.user.id)\
        and BACK_BOT.voice_client_in(message.server) == None):
 
@@ -34,25 +35,33 @@ async def on_message(message):
     await BACK_BOT.process_commands(message)
 
 @BACK_BOT.command()
-async def im_back(*args):
+async def im_back():
     return await BACK_BOT.say("Hi Back")
 
 @BACK_BOT.command()
-async def am_i_back(*args):
+async def am_i_back():
     return await BACK_BOT.say("Yes Back, you are Back")
 
 @BACK_BOT.command()
-async def bitch(*args):
+async def bitch():
     return await BACK_BOT.say("I ain't no back bitch")
 
 @BACK_BOT.command(pass_context=True)
 async def loot(context):
+    """
+    See all the backs you have in your backpack!
+    (You can play them back with ~playback <back_file>)
+    """
     message = context.message
     em = BACK_BOT.lootTracker.get_loot_embed(message.author, BACK_BOT)
     return await BACK_BOT.send_message(message.channel,
                                        embed=em)
 @BACK_BOT.command(pass_context=True)
 async def board(context):
+    """
+    The BACK Board!
+    Everyone's stats and rank, in order.
+    """
     message = context.message
     rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
     em = BACK_BOT.lootTracker.get_leaderboad_embed(rarity_file_totals, BACK_BOT)
@@ -60,15 +69,27 @@ async def board(context):
                                        embed=em)
 
 @BACK_BOT.command(pass_context=True)
-async def playback(context):
+async def playback(context, back_file):
+    """
+    Play a back you collected!
+    (if there are spaces, use quotes.
+    ~playback "my spaced back file.mp4")
+    """
     message = context.message
-    back_to_play = " ".join((message.content).split(" ")[1:]).strip()
+    back_to_play = back_file
     filename = BACK_BOT.lootTracker.playback(message.author, back_to_play, BACK_FILE_DIR)
     if(filename):
         return await play_opus_audio_to_channel_then_leave(message, filename, give_loot=False)
 
 @BACK_BOT.command(pass_context=True)
 async def rollback(context):
+    """
+    Resets everything for you!
+    (And plays you a special back...)
+
+    CAN ONLY BE DONE AFTER 10,000 POINTS!
+    """
+
     message = context.message
     if BACK_BOT.lootTracker.get_points(message.author) >= ROLLBACK_THRESHOLD:
         filename = pick_random_file(rarities = {"Rollback": 1})
@@ -79,12 +100,32 @@ async def rollback(context):
                                   " Points to force a Rollback!")
 
 @BACK_BOT.command(pass_context=True)
-async def stats(context):
+async def stats(context, player_name = None):
+    """
+    See your (or someone else's) BACK Board stats!
+
+    (if there are spaces, use quotes.
+    ~stats "Frog Bomb")
+    """
     message = context.message
     rarity_file_totals = {r: len(BACK_FILE_DICT[r]) for r in RARITIES}
-    em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author, rarity_file_totals, BACK_BOT)
+
+    if(player_name == None):
+        em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(message.author,\
+                                                                  rarity_file_totals,\
+                                                                  BACK_BOT)
+    else:
+        class Dummy_Player(object):
+            def __init__(self, name = None, id = None):
+                self.id = id
+                self.name = name
+
+        em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(Dummy_Player(player_name),\
+                                                                  rarity_file_totals,\
+                                                                  BACK_BOT)
     return await BACK_BOT.send_message(message.channel,
-                                       embed=em)
+                                           embed=em)
+
 
 # @BACK_BOT.command(pass_context=True)
 # async def give(context):

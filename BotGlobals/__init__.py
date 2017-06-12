@@ -26,5 +26,6 @@ BACK_FILE_DICT = {r: [join(BACK_FILE_DIR, r, f) for f in \
                             for r in RARITIES}
 
 CMD_PREFIX = '~'
-BACK_BOT = Bot(CMD_PREFIX)
+BACK_BOT = Bot(CMD_PREFIX,\
+               description = "The Back Bot: A bot for the greatest joke ever told.\nJust say back...")
 ROLLBACK_THRESHOLD = 10000
