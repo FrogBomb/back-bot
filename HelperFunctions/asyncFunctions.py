@@ -50,7 +50,7 @@ async def play_opus_audio_to_channel_then_leave(message, opus_filename,\
 
             except Exception as e:
                 print("Back out! Couldn't play the audio!", e)
-                await asyncio.wait_for(voice_client.disconnect(), 2)
+                await asyncio.wait_for(voice_client.disconnect(), 10)
                 await failure_coroutine()
                 raise e
 
