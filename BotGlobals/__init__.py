@@ -29,3 +29,4 @@ CMD_PREFIX = '~'
 BACK_BOT = Bot(CMD_PREFIX,\
                description = "The Back Bot: A bot for the greatest joke ever told.\nJust say back...")
 ROLLBACK_THRESHOLD = 10000
+CRATE_PITTY_WEIGHT = 40
