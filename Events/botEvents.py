@@ -5,8 +5,9 @@ from BotGlobals import  BACK_BOT,\
                         BACK_FILE_DICT,\
                         ROLLBACK_THRESHOLD
 
-from HelperFunctions.asyncFunctions import play_opus_audio_to_channel_then_leave
-from HelperFunctions.randomizers import pick_random_file
+from Helpers.asyncFunctions import play_opus_audio_to_channel_then_leave
+from Helpers.randomizers import pick_random_file
+from Helpers.dummyClasses import Dummy_Player
 import time
 
 @BACK_BOT.event
@@ -115,10 +116,6 @@ async def stats(context, player_name = None):
                                                                   rarity_file_totals,\
                                                                   BACK_BOT)
     else:
-        class Dummy_Player(object):
-            def __init__(self, name = None, id = None):
-                self.id = id
-                self.name = name
 
         em = BACK_BOT.lootTracker.get_leaderboad_embed_for_player(Dummy_Player(player_name),\
                                                                   rarity_file_totals,\

@@ -1,6 +1,6 @@
 from BotGlobals import RARITIES
 from collections import defaultdict
-from HelperFunctions.backFileHelpers import get_back_file_rarity, is_a_back_file_with_rarity
+from Helpers.backFileHelpers import get_back_file_rarity, is_a_back_file_with_rarity
 
 class LootBag(object):
     loot_rarities = [r for r in RARITIES]
