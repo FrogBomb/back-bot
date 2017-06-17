@@ -5,3 +5,5 @@
 super_secret_key.txt
 **/__pycache__/
 *.log
+*.ppk
+*.pem
