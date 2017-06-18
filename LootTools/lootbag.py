@@ -4,8 +4,9 @@ from Helpers.backFileHelpers import get_back_file_rarity, is_a_back_file_with_ra
 
 class LootBag(object):
     loot_rarities = [r for r in RARITIES]
-    def __init__(self):
+    def __init__(self, owner_name = None):
 
+        self.owner_name = owner_name
         self._rarities = LootBag.loot_rarities
         #Loot slots will be dictionaries to the counts of loot.
         #Defaults to 0

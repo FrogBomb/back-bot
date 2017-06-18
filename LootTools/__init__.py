@@ -1,1 +1,1 @@
-from .loottracker import LootTracker, LootBag, PlayerManager
+from .loottracker import LootTracker, LootBag

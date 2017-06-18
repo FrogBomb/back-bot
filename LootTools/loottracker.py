@@ -1,6 +1,7 @@
 from collections import defaultdict
 from os.path import isfile, join
 from .lootbag import LootBag
+from .playertobagmapper import PlayerToBagMapper
 from .playermanager import PlayerManager
 from BotGlobals import RARITIES, RARITY_COLORS
 import pickle
