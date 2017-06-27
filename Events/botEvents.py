@@ -3,7 +3,8 @@ from BotGlobals import  BACK_BOT,\
                         RARITIES,\
                         BACK_FILE_DIR,\
                         BACK_FILE_DICT,\
-                        ROLLBACK_THRESHOLD
+                        ROLLBACK_THRESHOLD,\
+                        BACK_WORDS
 
 from HelperFunctions.asyncFunctions import play_opus_audio_to_channel_then_leave
 from HelperFunctions.randomizers import pick_random_file
@@ -13,16 +14,18 @@ import time
 async def on_read():
     print("Back into action")
 
+def has_a_back(messageStr):
+    return any(word in messageStr.lower() for word in BACK_WORDS)
+
+has_a_back("hi")
 @BACK_BOT.event
 async def on_message(message):
     print(message.author.name, message.author.id)
     if(len(message.content)>0 and message.content[:len(CMD_PREFIX)] == CMD_PREFIX):
         pass
-    elif((("back" in message.content.lower())\
-            or ("\U0001f519" in message.content.lower())\
-            or ("⠃⠁⠉⠅" in message.content.lower()))\
-       and (message.author.id != BACK_BOT.user.id)\
-       and BACK_BOT.voice_client_in(message.server) == None):
+    elif(has_a_back(message.content)\
+         and (message.author.id != BACK_BOT.user.id)\
+         and BACK_BOT.voice_client_in(message.server) == None):
 
         print("back found! " + message.author.name + " is back at " + time.asctime())
         async def say_back_message():
