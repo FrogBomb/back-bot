@@ -9,6 +9,6 @@ ADD . .
 # RUN ls /usr/local/back_bot
 # RUN chmod +x /usr/local/bin/back_bot.py
 RUN chmod +x back_bot.py
-# VOLUME loot.pickle
+VOLUME loot.pickle
 # RUN apk del build-base
 ENTRYPOINT [ "/usr/local/bin/python", "back_bot.py" ]
